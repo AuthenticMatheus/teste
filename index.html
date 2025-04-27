@@ -13,6 +13,7 @@
       align-items: center;
       height: 100vh;
       background: #f5f5f5;
+      margin: 0;
     }
     .card {
       background: #fff;
@@ -38,14 +39,14 @@
 <body>
 
 <div class="card">
-  <h2>Produto Fictício</h2>
+  <h2>Produto Teste</h2>
   <p>Preço: R$ 99,90</p>
   <button id="checkout-btn">Comprar</button>
 </div>
 
 <script>
-  // Inicializar o Mercado Pago com sua Public Key
-  const mp = new MercadoPago('APP_USR-a0e89bb5-1696-4976-82db-b10860e07a96', {
+  // Inicializa o Mercado Pago (Public Key só para front-end, mas precisa para a SDK funcionar)
+  const mp = new MercadoPago('TEST-0abcb801-19ca-4898-b246-45c92b06e74f', {
     locale: 'pt-BR'
   });
 
@@ -53,13 +54,13 @@
     fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
-        'Authorization': 'APP_USR-3546004845321058-042321-214a8cf1d88de3583f35265b0f92c2d8-1872785441', // Coloque seu Access Token aqui
+        'Authorization': 'Bearer APP_USR-3546004845321058-042321-214a8cf1d88de3583f35265b0f92c2d8-1872785441',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         items: [
           {
-            title: 'Produto Fictício',
+            title: 'Produto Teste',
             quantity: 1,
             currency_id: 'BRL',
             unit_price: 99.90
@@ -69,14 +70,22 @@
     })
     .then(response => response.json())
     .then(data => {
-      mp.checkout({
-        preference: {
-          id: data.id
-        },
-        autoOpen: true,
-      });
+      if (data.id) {
+        mp.checkout({
+          preference: {
+            id: data.id
+          },
+          autoOpen: true,
+        });
+      } else {
+        console.error('Erro ao criar preferência:', data);
+        alert('Erro ao criar preferência de pagamento.');
+      }
     })
-    .catch(error => console.error(error));
+    .catch(error => {
+      console.error('Erro na requisição:', error);
+      alert('Erro ao conectar com Mercado Pago.');
+    });
   });
 </script>
 
